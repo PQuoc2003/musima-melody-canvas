@@ -20,7 +20,10 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
+				border: {
+					DEFAULT: 'hsl(var(--border))',
+					light: 'hsl(var(--border-light))'
+				},
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
@@ -64,13 +67,34 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				musima: {
-					primary: '#8B5CF6',
-					secondary: '#D946EF',
-					accent: '#F97316',
-					background: '#121212',
-					surface: '#1E1E1E',
-					text: '#FFFFFF',
-					muted: '#A0A0A0'
+					primary: {
+						DEFAULT: '#8B5CF6',
+						light: '#9766FF'
+					},
+					secondary: {
+						DEFAULT: '#D946EF',
+						light: '#E16AFF'
+					},
+					accent: {
+						DEFAULT: '#F97316',
+						light: '#FF9447'
+					},
+					background: {
+						DEFAULT: '#121212',
+						light: '#F7F8FA'
+					},
+					surface: {
+						DEFAULT: '#1E1E1E',
+						light: '#FFFFFF'
+					},
+					text: {
+						DEFAULT: '#FFFFFF',
+						light: '#121212'
+					},
+					muted: {
+						DEFAULT: '#A0A0A0',
+						light: '#666666'
+					}
 				}
 			},
 			borderRadius: {

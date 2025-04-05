@@ -16,6 +16,7 @@ import PlaylistsPage from "./pages/PlaylistsPage";
 import PlaylistDetailPage from "./pages/PlaylistDetailPage";
 import WishlistPage from "./pages/WishlistPage";
 import BrowsePage from "./pages/BrowsePage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/playlists" element={<PlaylistsPage />} />
             <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
           
           {/* Catch-all route */}

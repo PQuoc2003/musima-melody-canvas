@@ -7,6 +7,49 @@
 
 @layer base {
   :root {
+    /* Light theme variables */
+    --background: 210 40% 98%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 262 83% 66%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 291 92% 61%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --border-light: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 262 83% 66%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 262 83% 66%;
+  }
+
+  .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -32,10 +75,9 @@
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 3.7% 15.9%;
+    --border-light: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-
-    --radius: 0.5rem;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -54,7 +96,15 @@
   }
 
   body {
-    @apply bg-musima-background text-musima-text font-sans;
+    @apply bg-musima-background text-musima-text font-sans dark:bg-musima-background dark:text-musima-text;
+  }
+
+  .dark body {
+    @apply bg-musima-background text-musima-text;
+  }
+
+  body:not(.dark) {
+    @apply bg-musima-background-light text-musima-text-light;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -83,6 +133,11 @@
 /* Music player progress bar customization */
 .progress-bar {
   @apply h-1.5 bg-musima-surface rounded-full overflow-hidden relative;
+  @apply dark:bg-musima-surface;
+}
+
+.progress-bar:not(.dark) {
+  @apply bg-musima-surface-light;
 }
 
 .progress-bar-fill {
@@ -104,5 +159,9 @@
 }
 
 .playlist-item:hover {
-  @apply bg-black/20;
+  @apply bg-black/20 dark:bg-black/20;
+}
+
+.playlist-item:not(.dark):hover {
+  @apply bg-black/5;
 }

@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { Play, Clock } from 'lucide-react';
+import { Play, Clock, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Link } from 'react-router-dom';
 
 // Sample data
 const recentlyPlayed = [
@@ -20,11 +22,22 @@ const topPlaylists = [
   { id: 4, name: "Road Trip", description: "The perfect soundtrack for the open road", coverUrl: "https://via.placeholder.com/160", songCount: 40 },
 ];
 
+const featuredArtists = [
+  { id: 1, name: "Electronic Pulse", imageUrl: "https://via.placeholder.com/200", genre: "Electronic" },
+  { id: 2, name: "Acoustic Journey", imageUrl: "https://via.placeholder.com/200", genre: "Acoustic" },
+  { id: 3, name: "Jazz Ensemble", imageUrl: "https://via.placeholder.com/200", genre: "Jazz" },
+];
+
 // Recently played songs row
 const RecentlyPlayed = () => (
   <div>
-    <h2 className="text-2xl font-bold mb-4">Recently Played</h2>
-    <div className="grid grid-cols-5 gap-4">
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-2xl font-bold">Recently Played</h2>
+      <Button variant="ghost" size="sm" className="text-musima-muted hover:text-musima-primary">
+        See All <ArrowRight className="ml-1 h-4 w-4" />
+      </Button>
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {recentlyPlayed.map((song) => (
         <div key={song.id} className="group relative">
           <div className="relative overflow-hidden rounded-md album-cover">
@@ -46,8 +59,15 @@ const RecentlyPlayed = () => (
 // Top playlists section
 const TopPlaylists = () => (
   <div className="mt-10">
-    <h2 className="text-2xl font-bold mb-4">Your Playlists</h2>
-    <div className="grid grid-cols-4 gap-6">
+    <div className="flex justify-between items-center mb-4">
+      <h2 className="text-2xl font-bold">Your Playlists</h2>
+      <Link to="/playlists">
+        <Button variant="ghost" size="sm" className="text-musima-muted hover:text-musima-primary">
+          See All <ArrowRight className="ml-1 h-4 w-4" />
+        </Button>
+      </Link>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {topPlaylists.map((playlist) => (
         <Card key={playlist.id} className="bg-musima-surface border-white/5 hover:border-white/20 transition-colors">
           <CardContent className="p-4">
@@ -72,12 +92,43 @@ const TopPlaylists = () => (
   </div>
 );
 
+// Featured Artists section
+const FeaturedArtists = () => (
+  <div className="mt-10">
+    <h2 className="text-2xl font-bold mb-4">Featured Artists</h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {featuredArtists.map((artist) => (
+        <div key={artist.id} className="flex items-center p-4 bg-musima-surface/60 rounded-lg hover:bg-musima-surface transition-colors">
+          <img 
+            src={artist.imageUrl} 
+            alt={artist.name} 
+            className="w-16 h-16 rounded-full object-cover mr-4"
+          />
+          <div>
+            <h3 className="font-bold">{artist.name}</h3>
+            <p className="text-sm text-musima-muted">{artist.genre}</p>
+          </div>
+          <Button variant="ghost" size="icon" className="ml-auto text-musima-muted hover:text-musima-primary">
+            <Star className="h-5 w-5" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const HomePage = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Welcome Back</h1>
+      <div className="flex items-center mb-6">
+        <h1 className="text-3xl font-bold">Welcome Back</h1>
+      </div>
+      
       <RecentlyPlayed />
+      <Separator className="my-8 bg-white/5" />
       <TopPlaylists />
+      <Separator className="my-8 bg-white/5" />
+      <FeaturedArtists />
     </div>
   );
 };
