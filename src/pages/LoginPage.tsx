@@ -120,6 +120,14 @@ const LoginPage = () => {
                   </FormItem>
                 )}
               />
+              <div className="flex justify-end">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Button type="submit" className="w-full">Sign In</Button>
             </form>
           </Form>

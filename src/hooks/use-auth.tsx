@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,6 +74,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Mock reset password function - replace with actual API call in production
+  const resetPassword = async (email: string) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In a real app, you would send a reset password link to the user's email
+      console.log('Password reset request for', email);
+    } catch (error) {
+      console.error('Password reset failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('musima_user');
@@ -85,7 +103,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isLoading,
       login,
       register,
-      logout
+      logout,
+      resetPassword
     }}>
       {children}
     </AuthContext.Provider>
