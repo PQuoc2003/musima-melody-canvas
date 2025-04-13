@@ -12,6 +12,9 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 // Layout
 import MainLayout from "./components/layout/MainLayout";
 
+// Theme Provider
+import { ThemeProvider } from "./hooks/use-theme";
+
 // Pages
 import Index from "./pages/Index";
 import HomePage from "./pages/HomePage";
@@ -30,36 +33,38 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            
-            {/* Routes that redirect to appropriate location */}
-            <Route path="/" element={<Index />} />
-            
-            {/* Protected routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route element={<MainLayout />}>
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/browse" element={<BrowsePage />} />
-                <Route path="/library" element={<LibraryPage />} />
-                <Route path="/playlists" element={<PlaylistsPage />} />
-                <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              
+              {/* Routes that redirect to appropriate location */}
+              <Route path="/" element={<Index />} />
+              
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/home" element={<HomePage />} />
+                  <Route path="/browse" element={<BrowsePage />} />
+                  <Route path="/library" element={<LibraryPage />} />
+                  <Route path="/playlists" element={<PlaylistsPage />} />
+                  <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
               </Route>
-            </Route>
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+              
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
