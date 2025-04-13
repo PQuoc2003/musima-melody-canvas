@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 
-const Index = () => {
+const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   // Show loading indicator while checking auth status
@@ -11,12 +11,13 @@ const Index = () => {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
 
-  // Redirect based on authentication status
-  return isAuthenticated ? (
-    <Navigate to="/home" replace />
-  ) : (
-    <Navigate to="/login" replace />
-  );
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Render the protected content
+  return <Outlet />;
 };
 
-export default Index;
+export default ProtectedRoute;
