@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Music, Home, ListMusic, Heart, PlusCircle, Search, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { Music, Home, ListMusic, Heart, PlusCircle, Search, ChevronLeft, ChevronRight, Settings, Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/use-theme';
 
 const Sidebar = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
   
   const menuItems = [
     { name: 'Home', path: '/home', icon: Home },
@@ -77,6 +79,19 @@ const Sidebar = () => {
         >
           <PlusCircle className="h-4 w-4" />
           {!collapsed && <span className="ml-2">New Playlist</span>}
+        </Button>
+        
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleTheme}
+          className="mt-4 w-full flex justify-center"
+        >
+          {theme === 'dark' ? 
+            <Sun className="h-4 w-4" /> : 
+            <Moon className="h-4 w-4" />
+          }
+          {!collapsed && <span className="ml-2">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
         </Button>
       </div>
 

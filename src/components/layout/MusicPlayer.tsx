@@ -31,12 +31,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   };
   
   return (
-    <div className={cn("fixed bottom-0 left-0 right-0 h-20 bg-musima-surface border-t border-white/10 px-4 flex items-center", className)}>
+    <div className={cn("fixed bottom-0 left-0 right-0 h-20 bg-card border-t border-border px-4 flex items-center", className)}>
       <div className="flex items-center w-1/4">
         <img src={song.coverUrl} alt={`${song.title} cover`} className="h-12 w-12 rounded mr-3" />
         <div className="truncate">
-          <p className="text-sm font-medium truncate">{song.title}</p>
-          <p className="text-xs text-musima-muted truncate">{song.artist}</p>
+          <p className="text-sm font-medium truncate text-foreground">{song.title}</p>
+          <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
         </div>
         <Button 
           variant="ghost" 
@@ -44,36 +44,36 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
           className="ml-4"
           onClick={() => setIsLiked(!isLiked)}
         >
-          <Heart className={cn("h-4 w-4", isLiked ? "fill-musima-primary text-musima-primary" : "text-musima-muted")} />
+          <Heart className={cn("h-4 w-4", isLiked ? "fill-primary text-primary" : "text-muted-foreground")} />
         </Button>
       </div>
       
       <div className="flex-1 flex flex-col items-center">
         <div className="flex items-center space-x-4 mb-2">
-          <Button variant="ghost" size="icon" className="text-musima-muted hover:text-musima-text">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <Shuffle className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-musima-muted hover:text-musima-text">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <SkipBack className="h-5 w-5" />
           </Button>
           <Button 
             onClick={() => setIsPlaying(!isPlaying)}
             variant="outline" 
             size="icon" 
-            className="bg-musima-primary text-white border-none hover:bg-musima-primary/90 h-8 w-8"
+            className="bg-primary text-primary-foreground border-none hover:bg-primary/90 h-8 w-8"
           >
             {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </Button>
-          <Button variant="ghost" size="icon" className="text-musima-muted hover:text-musima-text">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <SkipForward className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-musima-muted hover:text-musima-text">
+          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <Repeat className="h-4 w-4" />
           </Button>
         </div>
         
         <div className="w-full flex items-center">
-          <span className="text-xs text-musima-muted mr-2">{formatTime(progress)}</span>
+          <span className="text-xs text-muted-foreground mr-2">{formatTime(progress)}</span>
           <div className="flex-1 mx-2">
             <Slider
               value={[progress]}
@@ -83,12 +83,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
               className="w-full"
             />
           </div>
-          <span className="text-xs text-musima-muted ml-2">{formatTime(240)}</span>
+          <span className="text-xs text-muted-foreground ml-2">{formatTime(240)}</span>
         </div>
       </div>
       
       <div className="w-1/4 flex justify-end items-center">
-        <Volume2 className="h-4 w-4 text-musima-muted mr-2" />
+        <Volume2 className="h-4 w-4 text-muted-foreground mr-2" />
         <Slider
           value={[volume]}
           max={100}

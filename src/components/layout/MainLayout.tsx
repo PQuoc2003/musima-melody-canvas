@@ -4,10 +4,17 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import MusicPlayer from './MusicPlayer';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/use-theme';
 
 const MainLayout = () => {
+  const { theme } = useTheme();
+  
   return (
-    <div className="flex h-screen overflow-hidden bg-musima-background">
+    <div className={cn(
+      "flex h-screen overflow-hidden",
+      theme === 'dark' ? 'bg-background' : 'bg-musima-background-light'
+    )}>
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
