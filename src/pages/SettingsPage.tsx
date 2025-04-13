@@ -9,10 +9,12 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
+import { useAuth } from '@/hooks/use-auth';
 
 const SettingsPage = () => {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const [highQualityStreaming, setHighQualityStreaming] = useState(true);
   const [autoplayRelated, setAutoplayRelated] = useState(true);
   const [dataCollection, setDataCollection] = useState(true);
@@ -82,7 +84,7 @@ const SettingsPage = () => {
                     <input
                       id="username"
                       type="text"
-                      defaultValue="MusiMaUser"
+                      defaultValue={user?.username || "MusiMaUser"}
                       className="w-full rounded-md border border-input bg-background px-3 py-2"
                     />
                   </div>
@@ -91,7 +93,7 @@ const SettingsPage = () => {
                     <input
                       id="email"
                       type="email"
-                      defaultValue="user@musima.com"
+                      defaultValue={user?.email || "user@musima.com"}
                       className="w-full rounded-md border border-input bg-background px-3 py-2"
                     />
                   </div>

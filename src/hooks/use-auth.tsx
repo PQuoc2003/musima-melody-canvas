@@ -19,6 +19,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Default user data
+const defaultUser = {
+  id: '123',
+  username: 'demo',
+  email: 'demo@musima.com'
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,6 +35,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser = localStorage.getItem('musima_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      // Set default user for demo purposes
+      setUser(defaultUser);
+      localStorage.setItem('musima_user', JSON.stringify(defaultUser));
     }
     setIsLoading(false);
   }, []);

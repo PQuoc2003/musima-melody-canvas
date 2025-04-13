@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Music, Home, ListMusic, Heart, PlusCircle, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Music, Home, ListMusic, Heart, PlusCircle, Search, ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,7 @@ const Sidebar = () => {
     { name: 'Library', path: '/library', icon: Music },
     { name: 'Playlists', path: '/playlists', icon: ListMusic },
     { name: 'Wishlist', path: '/wishlist', icon: Heart },
+    { name: 'Settings', path: '/settings', icon: Settings },
   ];
 
   const handleNewPlaylist = () => {
@@ -26,15 +27,19 @@ const Sidebar = () => {
     });
   };
 
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
+
   return (
     <div 
       className={cn(
-        "h-full bg-musima-surface flex flex-col border-r border-white/10 transition-all duration-300",
+        "h-full bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300",
         collapsed ? "w-20" : "w-64"
       )}
     >
       <div className={cn("p-6", collapsed ? "px-4" : "")}>
-        <h1 className={cn("font-bold text-musima-text flex items-center", collapsed ? "text-xl justify-center" : "text-2xl")}>
+        <h1 className={cn("font-bold text-sidebar-foreground flex items-center", collapsed ? "text-xl justify-center" : "text-2xl")}>
           <Music className="h-6 w-6 text-musima-primary" />
           {!collapsed && <span className="ml-2">MusiMa</span>}
         </h1>
@@ -51,8 +56,8 @@ const Sidebar = () => {
                     "w-full justify-start font-normal",
                     collapsed ? "px-2 py-2" : "px-3 py-2 h-10",
                     location.pathname === item.path
-                      ? "bg-musima-primary/20 text-musima-primary font-medium"
-                      : "text-musima-text hover:bg-musima-primary/10"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
@@ -64,7 +69,7 @@ const Sidebar = () => {
         </ul>
       </nav>
       
-      <div className={cn("p-6 border-t border-white/10", collapsed ? "px-2" : "")}>
+      <div className={cn("p-6 border-t border-sidebar-border", collapsed ? "px-2" : "")}>
         <Button 
           className={cn("flex items-center", collapsed ? "w-full justify-center px-2" : "w-full")} 
           variant="outline"
@@ -78,8 +83,8 @@ const Sidebar = () => {
       <Button 
         variant="ghost"
         size="icon"
-        className="absolute top-4 -right-4 h-8 w-8 rounded-full border border-white/10 bg-musima-surface text-musima-muted hover:text-musima-text z-10"
-        onClick={() => setCollapsed(!collapsed)}
+        className="absolute top-4 -right-4 h-8 w-8 rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground hover:text-sidebar-accent-foreground z-10"
+        onClick={toggleSidebar}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>

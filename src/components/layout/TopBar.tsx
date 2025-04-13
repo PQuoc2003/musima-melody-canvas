@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
@@ -37,7 +39,7 @@ const TopBar = () => {
           </>
         )}
         <Button variant="outline" size="icon" onClick={toggleTheme}>
-          {theme === 'dark' ? 'Light' : 'Dark'}
+          {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
       </div>
     </div>
