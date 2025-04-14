@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTheme } from '@/hooks/use-theme';
+import { cn } from '@/lib/utils';
 
 // Sample playlists data
 const samplePlaylists = [
@@ -21,11 +23,13 @@ const samplePlaylists = [
 const PlaylistsPage = () => {
   const [showNewPlaylistDialog, setShowNewPlaylistDialog] = useState(false);
   const [playlists, setPlaylists] = useState(samplePlaylists);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Your Playlists</h1>
+        <h1 className={cn("text-3xl font-bold", isDark ? "text-white" : "text-gray-800")}>Your Playlists</h1>
         <Dialog open={showNewPlaylistDialog} onOpenChange={setShowNewPlaylistDialog}>
           <DialogTrigger asChild>
             <Button variant="default" className="gap-2">
@@ -33,10 +37,10 @@ const PlaylistsPage = () => {
               New Playlist
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] bg-musima-surface text-musima-text">
+          <DialogContent className={cn("sm:max-w-[425px]", isDark ? "bg-musima-surface text-white" : "bg-white text-gray-800")}>
             <DialogHeader>
               <DialogTitle>Create New Playlist</DialogTitle>
-              <DialogDescription className="text-musima-muted">
+              <DialogDescription className={isDark ? "text-gray-300" : "text-gray-600"}>
                 Fill out the details for your new playlist.
               </DialogDescription>
             </DialogHeader>
@@ -45,7 +49,7 @@ const PlaylistsPage = () => {
                 <Label htmlFor="playlist-name" className="text-right">
                   Name
                 </Label>
-                <Input id="playlist-name" className="col-span-3 bg-white/5" />
+                <Input id="playlist-name" className={cn("col-span-3", isDark ? "bg-white/5" : "bg-gray-100")} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="playlist-description" className="text-right">
@@ -53,7 +57,7 @@ const PlaylistsPage = () => {
                 </Label>
                 <Textarea 
                   id="playlist-description" 
-                  className="col-span-3 bg-white/5 min-h-[80px]"
+                  className={cn("col-span-3 min-h-[80px]", isDark ? "bg-white/5" : "bg-gray-100")}
                   placeholder="Describe your playlist" 
                 />
               </div>
@@ -68,7 +72,15 @@ const PlaylistsPage = () => {
       
       <div className="grid grid-cols-3 gap-6">
         {playlists.map((playlist) => (
-          <Card key={playlist.id} className="bg-musima-surface border-white/5 hover:border-white/20 transition-colors">
+          <Card 
+            key={playlist.id} 
+            className={cn(
+              "transition-colors",
+              isDark 
+                ? "bg-musima-surface border-white/5 hover:border-white/20" 
+                : "bg-white border-gray-200 hover:border-gray-300"
+            )}
+          >
             <CardContent className="p-0">
               <div className="relative overflow-hidden">
                 <img src={playlist.coverUrl} alt={playlist.name} className="w-full aspect-square object-cover" />
@@ -89,9 +101,9 @@ const PlaylistsPage = () => {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="font-bold text-lg truncate">{playlist.name}</h3>
-                <p className="text-xs text-musima-muted mb-1 line-clamp-2 h-8">{playlist.description}</p>
-                <p className="text-xs text-musima-muted">{playlist.songCount} songs</p>
+                <h3 className={cn("font-bold text-lg truncate", isDark ? "text-white" : "text-gray-800")}>{playlist.name}</h3>
+                <p className={cn("text-xs mb-1 line-clamp-2 h-8", isDark ? "text-gray-300" : "text-gray-600")}>{playlist.description}</p>
+                <p className={cn("text-xs", isDark ? "text-gray-400" : "text-gray-500")}>{playlist.songCount} songs</p>
               </div>
             </CardContent>
           </Card>

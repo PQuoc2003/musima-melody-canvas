@@ -36,7 +36,7 @@ const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "h-full bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300",
+        "h-full bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-300 relative",
         collapsed ? "w-20" : "w-64"
       )}
     >
@@ -95,10 +95,11 @@ const Sidebar = () => {
         </Button>
       </div>
 
+      {/* Sidebar toggle button attached to the sidebar */}
       <Button 
         variant="ghost"
         size="icon"
-        className="absolute top-4 -right-4 h-8 w-8 rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground hover:text-sidebar-accent-foreground z-10"
+        className="absolute -right-4 top-20 h-8 w-8 rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground hover:text-sidebar-accent-foreground z-10"
         onClick={toggleSidebar}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
