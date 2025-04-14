@@ -43,7 +43,7 @@ const Sidebar = () => {
       <div className={cn("p-6", collapsed ? "px-4" : "")}>
         <h1 className={cn("font-bold text-sidebar-foreground flex items-center", collapsed ? "text-xl justify-center" : "text-2xl")}>
           <Music className="h-6 w-6 text-musima-primary" />
-          {!collapsed && <span className="ml-2">MusiMa</span>}
+          {!collapsed && <span className="ml-2 text-sidebar-foreground">MusiMa</span>}
         </h1>
       </div>
       
@@ -63,7 +63,7 @@ const Sidebar = () => {
                   )}
                 >
                   <item.icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
-                  {!collapsed && item.name}
+                  {!collapsed && <span className="text-inherit">{item.name}</span>}
                 </Button>
               </Link>
             </li>
@@ -73,7 +73,7 @@ const Sidebar = () => {
       
       <div className={cn("p-6 border-t border-sidebar-border", collapsed ? "px-2" : "")}>
         <Button 
-          className={cn("flex items-center", collapsed ? "w-full justify-center px-2" : "w-full")} 
+          className={cn("flex items-center text-sidebar-foreground", collapsed ? "w-full justify-center px-2" : "w-full")} 
           variant="outline"
           onClick={handleNewPlaylist}
         >
@@ -85,7 +85,7 @@ const Sidebar = () => {
           variant="ghost" 
           size="icon" 
           onClick={toggleTheme}
-          className="mt-4 w-full flex justify-center"
+          className="mt-4 w-full flex justify-center text-sidebar-foreground"
         >
           {theme === 'dark' ? 
             <Sun className="h-4 w-4" /> : 
