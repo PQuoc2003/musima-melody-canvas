@@ -8,15 +8,27 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/use-theme';
+import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 
 // Sample song data
-const songs = Array.from({ length: 20 }, (_, i) => ({
+const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
   id: i + 1,
   title: `Song ${i + 1}`,
   artist: `Artist ${Math.floor(i / 3) + 1}`,
   album: `Album ${Math.floor(i / 5) + 1}`,
   duration: Math.floor(Math.random() * 300) + 120, // Random duration between 2-5 mins
   liked: Math.random() > 0.7, // Randomly liked
+  // Add unique cover images and song URLs
+  coverUrl: `https://via.placeholder.com/60/${Math.floor(Math.random()*16777215).toString(16)}`,
+  songUrl: i % 5 === 0 
+    ? "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+    : i % 5 === 1 
+    ? "https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3"
+    : i % 5 === 2
+    ? "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-614.mp3"
+    : i % 5 === 3
+    ? "https://assets.mixkit.co/music/preview/mixkit-classical-strings-chamber-quartet-518.mp3"
+    : "https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3",
 }));
 
 // Format time helper
@@ -30,16 +42,22 @@ const LibraryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddSongDialog, setShowAddSongDialog] = useState(false);
   const { theme } = useTheme();
+  const { playSong } = useMusicPlayer();
   
   // Filter songs based on search term
-  const filteredSongs = songs.filter(song => 
+  const filteredSongs = libraryItems.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    song.album.toLowerCase().includes(searchTerm.toLowerCase())
+    (song.album && song.album.toLowerCase().includes(searchTerm.toLowerCase()))
   );
   
-  const textColorClass = theme === 'dark' ? 'text-musima-text' : 'text-musima-text-light';
-  const mutedTextClass = theme === 'dark' ? 'text-musima-muted' : 'text-musima-muted-light';
+  const isDark = theme === 'dark';
+  const textColorClass = isDark ? 'text-white' : 'text-gray-800';
+  const mutedTextClass = isDark ? 'text-gray-400' : 'text-gray-500';
+  
+  const handlePlaySong = (song: Song) => {
+    playSong(song);
+  };
   
   return (
     <div>
@@ -50,7 +68,7 @@ const LibraryPage = () => {
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${mutedTextClass}`} />
             <Input 
               placeholder="Search in library" 
-              className={`pl-10 w-64 bg-white/5 ${textColorClass}`}
+              className={`pl-10 w-64 ${isDark ? 'bg-white/5' : 'bg-gray-100'} ${textColorClass}`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -59,7 +77,7 @@ const LibraryPage = () => {
             <DialogTrigger asChild>
               <Button>Add Song</Button>
             </DialogTrigger>
-            <DialogContent className={`sm:max-w-[425px] bg-musima-surface ${theme === 'dark' ? 'text-musima-text' : 'text-musima-text-light dark:bg-musima-surface-light'}`}>
+            <DialogContent className={`sm:max-w-[425px] ${isDark ? 'bg-musima-surface text-white' : 'bg-white text-gray-800'}`}>
               <DialogHeader>
                 <DialogTitle className={textColorClass}>Add New Song</DialogTitle>
                 <DialogDescription className={mutedTextClass}>
@@ -71,19 +89,19 @@ const LibraryPage = () => {
                   <Label htmlFor="title" className="text-right">
                     Title
                   </Label>
-                  <Input id="title" className={`col-span-3 bg-white/5 ${textColorClass}`} />
+                  <Input id="title" className={`col-span-3 ${isDark ? 'bg-white/5' : 'bg-gray-100'} ${textColorClass}`} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="artist" className="text-right">
                     Artist
                   </Label>
-                  <Input id="artist" className={`col-span-3 bg-white/5 ${textColorClass}`} />
+                  <Input id="artist" className={`col-span-3 ${isDark ? 'bg-white/5' : 'bg-gray-100'} ${textColorClass}`} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="album" className="text-right">
                     Album
                   </Label>
-                  <Input id="album" className={`col-span-3 bg-white/5 ${textColorClass}`} />
+                  <Input id="album" className={`col-span-3 ${isDark ? 'bg-white/5' : 'bg-gray-100'} ${textColorClass}`} />
                 </div>
               </div>
               <DialogFooter>
@@ -95,32 +113,41 @@ const LibraryPage = () => {
         </div>
       </div>
       
-      <div className={`${theme === 'dark' ? 'bg-musima-surface/60' : 'bg-musima-surface-light/60'} rounded-md border ${theme === 'dark' ? 'border-white/10' : 'border-black/10'} overflow-hidden`}>
-        <div className={`grid grid-cols-12 py-3 px-4 border-b ${theme === 'dark' ? 'border-white/10' : 'border-black/10'} text-xs font-medium ${mutedTextClass} uppercase tracking-wider`}>
+      <div className={`${isDark ? 'bg-musima-surface/60' : 'bg-white'} rounded-md border ${isDark ? 'border-white/10' : 'border-gray-200'} overflow-hidden`}>
+        <div className={`grid grid-cols-12 py-3 px-4 border-b ${isDark ? 'border-white/10' : 'border-gray-200'} text-xs font-medium ${mutedTextClass} uppercase tracking-wider`}>
           <div className="col-span-1">#</div>
-          <div className="col-span-4">Title</div>
+          <div className="col-span-1"></div> {/* Cover column */}
+          <div className="col-span-3">Title</div>
           <div className="col-span-3">Artist</div>
           <div className="col-span-3">Album</div>
           <div className="col-span-1 text-right">Duration</div>
         </div>
         
-        <div className={`divide-y ${theme === 'dark' ? 'divide-white/5' : 'divide-black/5'}`}>
+        <div className={`divide-y ${isDark ? 'divide-white/5' : 'divide-gray-100'}`}>
           {filteredSongs.map((song, index) => (
             <div 
               key={song.id}
               className={`grid grid-cols-12 py-3 px-4 items-center hover:bg-white/5 group transition-colors playlist-item`}
             >
               <div className="col-span-1 flex items-center">
-                <span className={mutedTextClass + " group-hover:hidden"}>{index + 1}</span>
+                <span className={`${mutedTextClass} group-hover:hidden`}>{index + 1}</span>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   className={`hidden group-hover:flex h-7 w-7 ${textColorClass}`}
+                  onClick={() => handlePlaySong(song)}
                 >
                   <Play className="h-3.5 w-3.5" />
                 </Button>
               </div>
-              <div className={`col-span-4 font-medium truncate ${textColorClass}`}>{song.title}</div>
+              <div className="col-span-1">
+                <img 
+                  src={song.coverUrl} 
+                  alt={song.title} 
+                  className="h-10 w-10 rounded object-cover"
+                />
+              </div>
+              <div className={`col-span-3 font-medium truncate ${textColorClass}`}>{song.title}</div>
               <div className={`col-span-3 ${mutedTextClass} truncate`}>{song.artist}</div>
               <div className={`col-span-3 ${mutedTextClass} truncate`}>{song.album}</div>
               <div className="col-span-1 flex items-center justify-end space-x-3">
@@ -132,7 +159,7 @@ const LibraryPage = () => {
                 >
                   <Heart className={cn("h-4 w-4", song.liked && "fill-musima-primary text-musima-primary")} />
                 </Button>
-                <span className={`${mutedTextClass} text-sm`}>{formatTime(song.duration)}</span>
+                <span className={`${mutedTextClass} text-sm`}>{formatTime(song.duration || 0)}</span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
@@ -143,7 +170,7 @@ const LibraryPage = () => {
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className={`${theme === 'dark' ? 'bg-musima-surface border-white/10' : 'bg-musima-surface-light border-black/10'} ${textColorClass}`}>
+                  <DropdownMenuContent className={`${isDark ? 'bg-musima-surface border-white/10' : 'bg-white border-gray-200'} ${textColorClass}`}>
                     <DropdownMenuItem>Add to Playlist</DropdownMenuItem>
                     <DropdownMenuItem>Add to Wishlist</DropdownMenuItem>
                     <DropdownMenuItem>Edit Details</DropdownMenuItem>

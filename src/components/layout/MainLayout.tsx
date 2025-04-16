@@ -6,27 +6,30 @@ import TopBar from './TopBar';
 import MusicPlayer from './MusicPlayer';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/use-theme';
+import { MusicPlayerProvider } from '@/contexts/MusicPlayerContext';
 
 const MainLayout = () => {
   const { theme } = useTheme();
   
   return (
-    <div className={cn(
-      "flex h-screen overflow-hidden",
-      theme === 'dark' ? 'bg-background' : 'bg-musima-background-light'
-    )}>
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar />
+    <MusicPlayerProvider>
+      <div className={cn(
+        "flex h-screen overflow-hidden",
+        theme === 'dark' ? 'bg-background' : 'bg-musima-background-light'
+      )}>
+        <Sidebar />
         
-        <main className="flex-1 overflow-auto p-6 pb-24">
-          <Outlet />
-        </main>
-        
-        <MusicPlayer />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <TopBar />
+          
+          <main className="flex-1 overflow-auto p-6 pb-24">
+            <Outlet />
+          </main>
+          
+          <MusicPlayer />
+        </div>
       </div>
-    </div>
+    </MusicPlayerProvider>
   );
 };
 

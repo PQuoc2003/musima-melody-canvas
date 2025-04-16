@@ -4,17 +4,18 @@ import { Play, Clock, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
+import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 
 // Sample data
-const recentlyPlayed = [
-  { id: 1, title: "Starlight Melody", artist: "Cosmic Dreamers", coverUrl: "https://via.placeholder.com/120" },
-  { id: 2, title: "Ocean Waves", artist: "Nature Sounds", coverUrl: "https://via.placeholder.com/120" },
-  { id: 3, title: "Urban Rhythm", artist: "City Beats", coverUrl: "https://via.placeholder.com/120" },
-  { id: 4, title: "Mountain Echo", artist: "Highland Band", coverUrl: "https://via.placeholder.com/120" },
-  { id: 5, title: "Electric Dreams", artist: "Synth Masters", coverUrl: "https://via.placeholder.com/120" },
+const recentlyPlayed: Song[] = [
+  { id: 1, title: "Starlight Melody", artist: "Cosmic Dreamers", coverUrl: "https://via.placeholder.com/120", songUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" },
+  { id: 2, title: "Ocean Waves", artist: "Nature Sounds", coverUrl: "https://via.placeholder.com/120", songUrl: "https://assets.mixkit.co/music/preview/mixkit-dreaming-big-31.mp3" },
+  { id: 3, title: "Urban Rhythm", artist: "City Beats", coverUrl: "https://via.placeholder.com/120", songUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-614.mp3" },
+  { id: 4, title: "Mountain Echo", artist: "Highland Band", coverUrl: "https://via.placeholder.com/120", songUrl: "https://assets.mixkit.co/music/preview/mixkit-classical-strings-chamber-quartet-518.mp3" },
+  { id: 5, title: "Electric Dreams", artist: "Synth Masters", coverUrl: "https://via.placeholder.com/120", songUrl: "https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3" },
 ];
 
 const topPlaylists = [
@@ -32,7 +33,19 @@ const featuredArtists = [
 
 const HomePage = () => {
   const { theme } = useTheme();
+  const { playSong } = useMusicPlayer();
+  const navigate = useNavigate();
   const isDark = theme === 'dark';
+
+  // Function to handle playing a song
+  const handlePlaySong = (song: Song) => {
+    playSong(song);
+  };
+
+  // Function to navigate to playlist details
+  const handlePlaylistClick = (playlistId: number) => {
+    navigate(`/playlist/${playlistId}`);
+  };
 
   // Recently played songs row
   const RecentlyPlayed = () => (
@@ -49,7 +62,12 @@ const HomePage = () => {
             <div className="relative overflow-hidden rounded-md album-cover">
               <img src={song.coverUrl} alt={song.title} className="w-full aspect-square object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Button size="icon" variant="ghost" className="text-white bg-musima-primary/90 hover:bg-musima-primary">
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  className="text-white bg-musima-primary/90 hover:bg-musima-primary"
+                  onClick={() => handlePlaySong(song)}
+                >
                   <Play className="h-6 w-6" />
                 </Button>
               </div>
@@ -78,17 +96,25 @@ const HomePage = () => {
           <Card 
             key={playlist.id} 
             className={cn(
-              "border-white/5 hover:border-white/20 transition-colors",
+              "border-white/5 hover:border-white/20 transition-colors cursor-pointer",
               isDark 
                 ? "bg-musima-surface text-white" 
                 : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
             )}
+            onClick={() => handlePlaylistClick(playlist.id)}
           >
             <CardContent className="p-4">
               <div className="relative overflow-hidden rounded-md mb-3 album-cover">
                 <img src={playlist.coverUrl} alt={playlist.name} className="w-full aspect-square object-cover" />
                 <div className="absolute bottom-2 right-2">
-                  <Button size="icon" className="bg-musima-primary text-white hover:bg-musima-primary/90 h-10 w-10 rounded-full shadow-lg">
+                  <Button 
+                    size="icon" 
+                    className="bg-musima-primary text-white hover:bg-musima-primary/90 h-10 w-10 rounded-full shadow-lg"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click event
+                      handlePlaylistClick(playlist.id);
+                    }}
+                  >
                     <Play className="h-5 w-5" />
                   </Button>
                 </div>

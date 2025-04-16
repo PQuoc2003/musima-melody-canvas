@@ -14,6 +14,7 @@ import MainLayout from "./components/layout/MainLayout";
 
 // Theme Provider
 import { ThemeProvider } from "./hooks/use-theme";
+import { MusicPlayerProvider } from "./contexts/MusicPlayerContext";
 
 // Pages
 import Index from "./pages/Index";
@@ -35,37 +36,39 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              
-              {/* Routes that redirect to appropriate location */}
-              <Route path="/" element={<Index />} />
-              
-              {/* Protected routes */}
-              <Route element={<ProtectedRoute />}>
-                <Route element={<MainLayout />}>
-                  <Route path="/home" element={<HomePage />} />
-                  <Route path="/browse" element={<BrowsePage />} />
-                  <Route path="/library" element={<LibraryPage />} />
-                  <Route path="/playlists" element={<PlaylistsPage />} />
-                  <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
-                  <Route path="/wishlist" element={<WishlistPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
+        <MusicPlayerProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                
+                {/* Routes that redirect to appropriate location */}
+                <Route path="/" element={<Index />} />
+                
+                {/* Protected routes */}
+                <Route element={<ProtectedRoute />}>
+                  <Route element={<MainLayout />}>
+                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/browse" element={<BrowsePage />} />
+                    <Route path="/library" element={<LibraryPage />} />
+                    <Route path="/playlists" element={<PlaylistsPage />} />
+                    <Route path="/playlist/:id" element={<PlaylistDetailPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Route>
                 </Route>
-              </Route>
-              
-              {/* Catch-all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+                
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </MusicPlayerProvider>
       </ThemeProvider>
     </AuthProvider>
   </QueryClientProvider>
