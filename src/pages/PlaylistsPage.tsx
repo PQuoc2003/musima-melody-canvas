@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { PlusCircle, Edit, Trash2, Music } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { PlusCircle, Edit, Trash2, Music, Image, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from '@/hooks/use-theme';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 // Sample playlists data
 const samplePlaylists = [
@@ -23,8 +25,78 @@ const samplePlaylists = [
 const PlaylistsPage = () => {
   const [showNewPlaylistDialog, setShowNewPlaylistDialog] = useState(false);
   const [playlists, setPlaylists] = useState(samplePlaylists);
+  const [playlistName, setPlaylistName] = useState('');
+  const [playlistDescription, setPlaylistDescription] = useState('');
+  const [playlistCoverUrl, setPlaylistCoverUrl] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme } = useTheme();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
   const isDark = theme === 'dark';
+  
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // In a real app, you would upload this file to your server/storage
+      // For now, we'll just create a local URL for preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        // In a real app, you'd set the playlistCoverUrl to the URL returned from your server
+        setPlaylistCoverUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setImagePreview('');
+    setPlaylistCoverUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const createPlaylist = () => {
+    if (!playlistName.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a playlist name",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real app, this would be an API call to create a playlist
+    const newPlaylist = {
+      id: playlists.length + 1,
+      name: playlistName,
+      description: playlistDescription,
+      songCount: 0,
+      coverUrl: playlistCoverUrl || "https://via.placeholder.com/160"
+    };
+
+    setPlaylists([...playlists, newPlaylist]);
+    toast({
+      title: "Success",
+      description: `Playlist "${playlistName}" has been created`,
+    });
+    
+    // Reset form
+    setPlaylistName('');
+    setPlaylistDescription('');
+    setPlaylistCoverUrl('');
+    setImagePreview('');
+    setShowNewPlaylistDialog(false);
+  };
+
+  const handlePlaylistClick = (playlistId: number) => {
+    // Navigate to the playlist detail page
+    navigate(`/playlists/${playlistId}`);
+  };
   
   return (
     <div>
@@ -37,7 +109,7 @@ const PlaylistsPage = () => {
               New Playlist
             </Button>
           </DialogTrigger>
-          <DialogContent className={cn("sm:max-w-[425px]", isDark ? "bg-musima-surface text-white" : "bg-white text-gray-800")}>
+          <DialogContent className={cn("sm:max-w-[500px]", isDark ? "bg-musima-surface text-white" : "bg-white text-gray-800")}>
             <DialogHeader>
               <DialogTitle>Create New Playlist</DialogTitle>
               <DialogDescription className={isDark ? "text-gray-300" : "text-gray-600"}>
@@ -49,37 +121,98 @@ const PlaylistsPage = () => {
                 <Label htmlFor="playlist-name" className="text-right">
                   Name
                 </Label>
-                <Input id="playlist-name" className={cn("col-span-3", isDark ? "bg-white/5" : "bg-gray-100")} />
+                <Input 
+                  id="playlist-name" 
+                  value={playlistName}
+                  onChange={(e) => setPlaylistName(e.target.value)}
+                  className={cn("col-span-3", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")} 
+                  placeholder="Enter playlist name"
+                />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="playlist-description" className="text-right">
                   Description
                 </Label>
                 <Textarea 
-                  id="playlist-description" 
-                  className={cn("col-span-3 min-h-[80px]", isDark ? "bg-white/5" : "bg-gray-100")}
+                  id="playlist-description"
+                  value={playlistDescription}
+                  onChange={(e) => setPlaylistDescription(e.target.value)}
+                  className={cn("col-span-3 min-h-[80px]", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
                   placeholder="Describe your playlist" 
                 />
               </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="playlist-cover" className="text-right pt-2">
+                  Cover Image
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex items-center gap-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => fileInputRef.current?.click()}
+                      className={cn(isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                    >
+                      <Image className="h-4 w-4 mr-2" />
+                      Choose Image
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      id="playlist-cover"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    {imagePreview && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={clearImage}
+                        className={cn("ml-2", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  {imagePreview && (
+                    <div className="mt-4 relative w-32 h-32">
+                      <img 
+                        src={imagePreview} 
+                        alt="Playlist cover preview" 
+                        className="w-full h-full object-cover rounded-md border border-gray-200"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNewPlaylistDialog(false)}>Cancel</Button>
-              <Button onClick={() => setShowNewPlaylistDialog(false)}>Create Playlist</Button>
+              <Button variant="outline" onClick={() => {
+                setShowNewPlaylistDialog(false);
+                setPlaylistName('');
+                setPlaylistDescription('');
+                setImagePreview('');
+                setPlaylistCoverUrl('');
+              }}>Cancel</Button>
+              <Button onClick={createPlaylist}>Create Playlist</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
       
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {playlists.map((playlist) => (
           <Card 
             key={playlist.id} 
             className={cn(
-              "transition-colors",
+              "transition-colors cursor-pointer",
               isDark 
                 ? "bg-musima-surface border-white/5 hover:border-white/20" 
                 : "bg-white border-gray-200 hover:border-gray-300"
             )}
+            onClick={() => handlePlaylistClick(playlist.id)}
           >
             <CardContent className="p-0">
               <div className="relative overflow-hidden">
