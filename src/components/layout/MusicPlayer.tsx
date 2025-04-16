@@ -1,6 +1,5 @@
-
-import React, { useEffect, useRef } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat, Shuffle, Heart, PlusCircle } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Repeat, Shuffle, Heart, PlusCircle, Music } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -41,21 +40,18 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   const { toast } = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Sample playlists - in a real app this would come from an API or context
   const playlists = [
     { id: 1, name: "Chill Vibes" },
     { id: 2, name: "Workout Mix" },
     { id: 3, name: "Focus & Study" }
   ];
   
-  // Format time (seconds -> mm:ss)
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Effect to handle play/pause
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -68,14 +64,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
     }
   }, [isPlaying, currentSong]);
 
-  // Effect to handle volume changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
     }
   }, [volume]);
 
-  // Effect to update progress
   useEffect(() => {
     const updateProgress = () => {
       if (audioRef.current) {
@@ -92,7 +86,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
     }
   }, [setProgress]);
 
-  // Handle end of track
   useEffect(() => {
     const handleTrackEnd = () => {
       nextSong();
@@ -118,7 +111,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   const handleAddToPlaylist = (playlistId: number) => {
     if (!currentSong) return;
     
-    // In a real application, this would call an API to add the song to the playlist
     toast({
       title: "Added to playlist",
       description: `${currentSong.title} was added to playlist ${playlists.find(p => p.id === playlistId)?.name}`,
@@ -134,7 +126,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
       isDark ? "bg-musima-surface border-white/10 text-white" : "bg-white border-gray-200 text-gray-800",
       className
     )}>
-      {/* Hidden audio element for playback */}
       <audio 
         ref={audioRef} 
         src={currentSong?.songUrl} 
