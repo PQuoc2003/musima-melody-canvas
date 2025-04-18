@@ -1,14 +1,12 @@
-
 import React, { useState } from 'react';
-import { Clock, Heart, MoreHorizontal, Music, Play, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/use-theme';
-import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
+import SongCard from '@/components/music/SongCard';
 
 // Sample song data
 const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
@@ -55,13 +53,9 @@ const LibraryPage = () => {
   const textColorClass = isDark ? 'text-white' : 'text-gray-800';
   const mutedTextClass = isDark ? 'text-gray-400' : 'text-gray-500';
   
-  const handlePlaySong = (song: Song) => {
-    playSong(song);
-  };
-  
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <h1 className={`text-3xl font-bold ${textColorClass}`}>Your Library</h1>
         <div className="flex items-center space-x-4">
           <div className="relative">
@@ -113,74 +107,14 @@ const LibraryPage = () => {
         </div>
       </div>
       
-      <div className={`${isDark ? 'bg-musima-surface/60' : 'bg-white'} rounded-md border ${isDark ? 'border-white/10' : 'border-gray-200'} overflow-hidden`}>
-        <div className={`grid grid-cols-12 py-3 px-4 border-b ${isDark ? 'border-white/10' : 'border-gray-200'} text-xs font-medium ${mutedTextClass} uppercase tracking-wider`}>
-          <div className="col-span-1">#</div>
-          <div className="col-span-1"></div> {/* Cover column */}
-          <div className="col-span-3">Title</div>
-          <div className="col-span-3">Artist</div>
-          <div className="col-span-3">Album</div>
-          <div className="col-span-1 text-right">Duration</div>
-        </div>
-        
-        <div className={`divide-y ${isDark ? 'divide-white/5' : 'divide-gray-100'}`}>
-          {filteredSongs.map((song, index) => (
-            <div 
-              key={song.id}
-              className={`grid grid-cols-12 py-3 px-4 items-center hover:bg-white/5 group transition-colors playlist-item`}
-            >
-              <div className="col-span-1 flex items-center">
-                <span className={`${mutedTextClass} group-hover:hidden`}>{index + 1}</span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className={`hidden group-hover:flex h-7 w-7 ${textColorClass}`}
-                  onClick={() => handlePlaySong(song)}
-                >
-                  <Play className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-              <div className="col-span-1">
-                <img 
-                  src={song.coverUrl} 
-                  alt={song.title} 
-                  className="h-10 w-10 rounded object-cover"
-                />
-              </div>
-              <div className={`col-span-3 font-medium truncate ${textColorClass}`}>{song.title}</div>
-              <div className={`col-span-3 ${mutedTextClass} truncate`}>{song.artist}</div>
-              <div className={`col-span-3 ${mutedTextClass} truncate`}>{song.album}</div>
-              <div className="col-span-1 flex items-center justify-end space-x-3">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className={`h-7 w-7 ${mutedTextClass} opacity-0 group-hover:opacity-100 hover:${textColorClass}`}
-                  onClick={() => {/* Toggle like */}}
-                >
-                  <Heart className={cn("h-4 w-4", song.liked && "fill-musima-primary text-musima-primary")} />
-                </Button>
-                <span className={`${mutedTextClass} text-sm`}>{formatTime(song.duration || 0)}</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className={`h-7 w-7 ${mutedTextClass} opacity-0 group-hover:opacity-100 hover:${textColorClass}`}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className={`${isDark ? 'bg-musima-surface border-white/10' : 'bg-white border-gray-200'} ${textColorClass}`}>
-                    <DropdownMenuItem>Add to Playlist</DropdownMenuItem>
-                    <DropdownMenuItem>Add to Wishlist</DropdownMenuItem>
-                    <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {filteredSongs.map((song) => (
+          <SongCard
+            key={song.id}
+            song={song}
+            onPlay={playSong}
+          />
+        ))}
       </div>
     </div>
   );
