@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/hooks/use-theme';
-import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
+import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 import SongCard from '@/components/music/SongCard';
 
 // Sample song data
