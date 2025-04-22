@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Search, Image, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -44,9 +44,12 @@ const LibraryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddSongDialog, setShowAddSongDialog] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [imagePreview, setImagePreview] = useState('');
+  const [songCoverUrl, setSongCoverUrl] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme } = useTheme();
   const { playSong } = useMusicPlayer();
-  
+
   // Filter songs based on search term
   const filteredSongs = libraryItems.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,7 +61,28 @@ const LibraryPage = () => {
   const totalPages = Math.ceil(filteredSongs.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedSongs = filteredSongs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setSongCoverUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setImagePreview('');
+    setSongCoverUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const isDark = theme === 'dark';
   const textColorClass = isDark ? 'text-white' : 'text-gray-800';
   const mutedTextClass = isDark ? 'text-gray-400' : 'text-gray-500';
@@ -107,9 +131,59 @@ const LibraryPage = () => {
                   </Label>
                   <Input id="album" className={`col-span-3 ${isDark ? 'bg-white/5' : 'bg-gray-100'} ${textColorClass}`} />
                 </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="song-cover" className="text-right pt-2">
+                    Cover Image
+                  </Label>
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => fileInputRef.current?.click()}
+                        className={cn(isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                      >
+                        <Image className="h-4 w-4 mr-2" />
+                        Choose Image
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        id="song-cover"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      {imagePreview && (
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={clearImage}
+                          className={cn("ml-2", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    {imagePreview && (
+                      <div className="mt-4 relative w-32 h-32">
+                        <img 
+                          src={imagePreview} 
+                          alt="Song cover preview" 
+                          className="w-full h-full object-cover rounded-md border border-gray-200"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setShowAddSongDialog(false)}>Cancel</Button>
+                <Button variant="outline" onClick={() => {
+                  setShowAddSongDialog(false);
+                  setImagePreview('');
+                  setSongCoverUrl('');
+                }}>Cancel</Button>
                 <Button onClick={() => setShowAddSongDialog(false)}>Add Song</Button>
               </DialogFooter>
             </DialogContent>
