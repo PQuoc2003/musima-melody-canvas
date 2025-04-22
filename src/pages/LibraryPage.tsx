@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 import SongCard from '@/components/music/SongCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { cn } from '@/lib/utils';
 
 // Sample song data
 const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
