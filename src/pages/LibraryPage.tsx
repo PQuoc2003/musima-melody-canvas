@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Search, Image, X } from 'lucide-react';
+import { Search, Image, X, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,15 +10,13 @@ import SongCard from '@/components/music/SongCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { cn } from '@/lib/utils';
 
-// Sample song data
 const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
   id: i + 1,
   title: `Song ${i + 1}`,
   artist: `Artist ${Math.floor(i / 3) + 1}`,
   album: `Album ${Math.floor(i / 5) + 1}`,
-  duration: Math.floor(Math.random() * 300) + 120, // Random duration between 2-5 mins
-  liked: Math.random() > 0.7, // Randomly liked
-  // Add unique cover images and song URLs
+  duration: Math.floor(Math.random() * 300) + 120,
+  liked: Math.random() > 0.7,
   coverUrl: `https://via.placeholder.com/60/${Math.floor(Math.random()*16777215).toString(16)}`,
   songUrl: i % 5 === 0 
     ? "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
@@ -31,7 +29,6 @@ const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
     : "https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3",
 }));
 
-// Format time helper
 const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -46,18 +43,18 @@ const LibraryPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [imagePreview, setImagePreview] = useState('');
   const [songCoverUrl, setSongCoverUrl] = useState('');
+  const [songFile, setSongFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const songFileInputRef = useRef<HTMLInputElement>(null);
   const { theme } = useTheme();
   const { playSong } = useMusicPlayer();
 
-  // Filter songs based on search term
   const filteredSongs = libraryItems.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (song.album && song.album.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredSongs.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedSongs = filteredSongs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -83,6 +80,20 @@ const LibraryPage = () => {
     }
   };
 
+  const handleSongFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'audio/mpeg') {
+      setSongFile(file);
+    }
+  };
+
+  const clearSongFile = () => {
+    setSongFile(null);
+    if (songFileInputRef.current) {
+      songFileInputRef.current.value = '';
+    }
+  };
+
   const isDark = theme === 'dark';
   const textColorClass = isDark ? 'text-white' : 'text-gray-800';
   const mutedTextClass = isDark ? 'text-gray-400' : 'text-gray-500';
@@ -101,7 +112,14 @@ const LibraryPage = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Dialog open={showAddSongDialog} onOpenChange={setShowAddSongDialog}>
+          <Dialog open={showAddSongDialog} onOpenChange={(open) => {
+            if (!open) {
+              setImagePreview('');
+              setSongCoverUrl('');
+              setSongFile(null);
+            }
+            setShowAddSongDialog(open);
+          }}>
             <DialogTrigger asChild>
               <Button>Add Song</Button>
             </DialogTrigger>
@@ -177,12 +195,52 @@ const LibraryPage = () => {
                     )}
                   </div>
                 </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label htmlFor="song-file" className="text-right pt-2">
+                    Song File
+                  </Label>
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => songFileInputRef.current?.click()}
+                        className={cn(isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                      >
+                        <Music className="h-4 w-4 mr-2" />
+                        Choose MP3
+                      </Button>
+                      <input
+                        ref={songFileInputRef}
+                        id="song-file"
+                        type="file"
+                        accept="audio/mpeg"
+                        onChange={handleSongFileChange}
+                        className="hidden"
+                      />
+                      {songFile && (
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm ${textColorClass}`}>{songFile.name}</span>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={clearSongFile}
+                            className={cn("ml-2", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => {
                   setShowAddSongDialog(false);
                   setImagePreview('');
                   setSongCoverUrl('');
+                  setSongFile(null);
                 }}>Cancel</Button>
                 <Button onClick={() => setShowAddSongDialog(false)}>Add Song</Button>
               </DialogFooter>

@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
-import { Moon, Sun, User, Volume2, Shield } from 'lucide-react';
+import { Moon, Sun, User, Volume2, Shield, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/hooks/use-auth';
@@ -18,12 +18,37 @@ const SettingsPage = () => {
   const [highQualityStreaming, setHighQualityStreaming] = useState(true);
   const [autoplayRelated, setAutoplayRelated] = useState(true);
   const [dataCollection, setDataCollection] = useState(true);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSaveChanges = () => {
     toast({
       title: "Settings Saved",
       description: "Your preferences have been updated",
     });
+  };
+
+  const handlePasswordChange = () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Here you would typically make an API call to change the password
+    toast({
+      title: "Success",
+      description: "Password has been updated successfully",
+    });
+
+    // Clear the form
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
   };
 
   return (
@@ -96,6 +121,58 @@ const SettingsPage = () => {
                       defaultValue={user?.email || "user@musima.com"}
                       className="w-full rounded-md border border-input bg-background px-3 py-2"
                     />
+                  </div>
+                </div>
+              </div>
+              
+              <Separator className="my-6" />
+              
+              <div className="space-y-4">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Change Password</Label>
+                  <div className="text-sm text-muted-foreground">
+                    Update your password to keep your account secure
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button 
+                      onClick={handlePasswordChange}
+                      disabled={!currentPassword || !newPassword || !confirmPassword}
+                    >
+                      <Lock className="h-4 w-4 mr-2" />
+                      Change Password
+                    </Button>
                   </div>
                 </div>
               </div>
