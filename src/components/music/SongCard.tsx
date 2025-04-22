@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -70,11 +69,18 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPlay }) => {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className={isDark ? "bg-musima-surface border-white/10" : "bg-white"}>
-              <DropdownMenuItem>Add to Playlist</DropdownMenuItem>
-              <DropdownMenuItem>Add to Wishlist</DropdownMenuItem>
-              <DropdownMenuItem>Edit Details</DropdownMenuItem>
-              <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
+            <DropdownMenuContent 
+              className={cn(
+                "min-w-[200px] p-2",
+                isDark 
+                  ? "bg-musima-surface/95 backdrop-blur-lg border-white/10" 
+                  : "bg-white/95 backdrop-blur-lg"
+              )}
+            >
+              <DropdownMenuItem className="py-2 cursor-pointer">Add to Playlist</DropdownMenuItem>
+              <DropdownMenuItem className="py-2 cursor-pointer">Add to Wishlist</DropdownMenuItem>
+              <DropdownMenuItem className="py-2 cursor-pointer">Edit Details</DropdownMenuItem>
+              <DropdownMenuItem className="py-2 cursor-pointer text-red-500">Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

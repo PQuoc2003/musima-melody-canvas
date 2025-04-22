@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useTheme } from '@/hooks/use-theme';
 import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 import SongCard from '@/components/music/SongCard';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 // Sample song data
 const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
@@ -37,9 +37,12 @@ const formatTime = (seconds: number) => {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const LibraryPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddSongDialog, setShowAddSongDialog] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const { theme } = useTheme();
   const { playSong } = useMusicPlayer();
   
@@ -49,6 +52,11 @@ const LibraryPage = () => {
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (song.album && song.album.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredSongs.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedSongs = filteredSongs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   
   const isDark = theme === 'dark';
   const textColorClass = isDark ? 'text-white' : 'text-gray-800';
@@ -109,7 +117,7 @@ const LibraryPage = () => {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {filteredSongs.map((song) => (
+        {paginatedSongs.map((song) => (
           <SongCard
             key={song.id}
             song={song}
@@ -117,6 +125,45 @@ const LibraryPage = () => {
           />
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent>
+            {currentPage > 1 && (
+              <PaginationItem>
+                <PaginationPrevious 
+                  className={isDark ? "hover:bg-white/10" : "hover:bg-gray-100"}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                />
+              </PaginationItem>
+            )}
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  className={cn(
+                    isDark ? "hover:bg-white/10" : "hover:bg-gray-100",
+                    currentPage === page && (isDark ? "bg-white/20" : "bg-gray-200")
+                  )}
+                  onClick={() => setCurrentPage(page)}
+                  isActive={currentPage === page}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext 
+                  className={isDark ? "hover:bg-white/10" : "hover:bg-gray-100"}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
+                />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
