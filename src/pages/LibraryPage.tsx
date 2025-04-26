@@ -236,12 +236,17 @@ const LibraryPage = () => {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => {
-                  setShowAddSongDialog(false);
-                  setImagePreview('');
-                  setSongCoverUrl('');
-                  setSongFile(null);
-                }}>Cancel</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowAddSongDialog(false);
+                    setImagePreview('');
+                    setSongCoverUrl('');
+                    setSongFile(null);
+                  }}
+                >
+                  Cancel
+                </Button>
                 <Button onClick={() => setShowAddSongDialog(false)}>Add Song</Button>
               </DialogFooter>
             </DialogContent>
