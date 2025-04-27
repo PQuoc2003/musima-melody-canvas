@@ -20,6 +20,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useTheme } from '@/hooks/use-theme';
 import { useToast } from '@/hooks/use-toast';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useAuth } from '@/hooks/use-auth';
 
 const emailSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -38,6 +39,7 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { toast } = useToast();
+  const { resetPassword } = useAuth();
 
   const emailForm = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
@@ -56,6 +58,7 @@ const ForgotPasswordPage = () => {
   const onSubmitEmail = async (values: EmailFormValues) => {
     try {
       // Here you would call your existing API to send OTP
+      await resetPassword(values.email);
       console.log('Requesting OTP for:', values.email);
       
       toast({
@@ -149,7 +152,7 @@ const ForgotPasswordPage = () => {
                           render={({ slots }) => (
                             <InputOTPGroup className="gap-2">
                               {slots.map((slot, index) => (
-                                <InputOTPSlot key={index} {...slot} />
+                                <InputOTPSlot key={index} {...slot} index={index} />
                               ))}
                             </InputOTPGroup>
                           )}
@@ -199,4 +202,3 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
-
