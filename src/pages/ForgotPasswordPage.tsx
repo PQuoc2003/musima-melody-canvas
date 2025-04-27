@@ -19,37 +19,79 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from '@/hooks/use-theme';
 import { useToast } from '@/hooks/use-toast';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
-const forgotPasswordSchema = z.object({
+const emailSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
 });
 
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+const otpSchema = z.object({
+  otp: z.string().length(6, { message: 'Please enter a valid 6-digit code' }),
+});
+
+type EmailFormValues = z.infer<typeof emailSchema>;
+type OTPFormValues = z.infer<typeof otpSchema>;
 
 const ForgotPasswordPage = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [step, setStep] = useState<'email' | 'otp' | 'success'>('email');
+  const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { toast } = useToast();
 
-  const form = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const emailForm = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
     defaultValues: {
       email: '',
     },
   });
 
-  const onSubmit = (values: ForgotPasswordFormValues) => {
-    console.log('Password reset requested for:', values.email);
-    
-    // In a real application, you would call an API to send a password reset email
-    toast({
-      title: "Reset Link Sent",
-      description: "If an account exists with this email, you will receive a password reset link.",
-    });
-    
-    // Show success message
-    setIsSubmitted(true);
+  const otpForm = useForm<OTPFormValues>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      otp: '',
+    },
+  });
+
+  const onSubmitEmail = async (values: EmailFormValues) => {
+    try {
+      // Here you would call your existing API to send OTP
+      console.log('Requesting OTP for:', values.email);
+      
+      toast({
+        title: "OTP Sent",
+        description: "Please check your email for the verification code.",
+      });
+      
+      setUserEmail(values.email);
+      setStep('otp');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send verification code. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onSubmitOTP = async (values: OTPFormValues) => {
+    try {
+      // Here you would call your existing API to verify OTP and trigger password reset
+      console.log('Verifying OTP:', values.otp);
+      
+      toast({
+        title: "Password Reset Successful",
+        description: "A new password has been sent to your email.",
+      });
+      
+      setStep('success');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Invalid verification code. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -58,31 +100,17 @@ const ForgotPasswordPage = () => {
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-3xl font-bold">Reset Password</CardTitle>
           <CardDescription>
-            {isSubmitted 
-              ? "Check your email for a reset link" 
-              : "Enter your email to receive a password reset link"}
+            {step === 'email' && "Enter your email to receive a verification code"}
+            {step === 'otp' && "Enter the verification code sent to your email"}
+            {step === 'success' && "Check your email for your new password"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isSubmitted ? (
-            <div className="text-center space-y-4">
-              <p className="text-sm text-muted-foreground">
-                We've sent a password reset link to your email address. 
-                Please check your inbox and follow the instructions to reset your password.
-              </p>
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                onClick={() => navigate('/login')}
-              >
-                Return to Login
-              </Button>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {step === 'email' && (
+            <Form {...emailForm}>
+              <form onSubmit={emailForm.handleSubmit(onSubmitEmail)} className="space-y-4">
                 <FormField
-                  control={form.control}
+                  control={emailForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -101,9 +129,59 @@ const ForgotPasswordPage = () => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">Send Reset Link</Button>
+                <Button type="submit" className="w-full">Send Verification Code</Button>
               </form>
             </Form>
+          )}
+          
+          {step === 'otp' && (
+            <Form {...otpForm}>
+              <form onSubmit={otpForm.handleSubmit(onSubmitOTP)} className="space-y-4">
+                <FormField
+                  control={otpForm.control}
+                  name="otp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Verification Code</FormLabel>
+                      <FormControl>
+                        <InputOTP
+                          maxLength={6}
+                          render={({ slots }) => (
+                            <InputOTPGroup className="gap-2">
+                              {slots.map((slot, index) => (
+                                <InputOTPSlot key={index} {...slot} />
+                              ))}
+                            </InputOTPGroup>
+                          )}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="text-sm text-center text-muted-foreground">
+                  Verification code sent to {userEmail}
+                </div>
+                <Button type="submit" className="w-full">Verify Code</Button>
+              </form>
+            </Form>
+          )}
+
+          {step === 'success' && (
+            <div className="text-center space-y-4">
+              <p className="text-sm text-muted-foreground">
+                A new password has been sent to your email address. 
+                Please use this password to log in, and then change it from your settings.
+              </p>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => navigate('/login')}
+              >
+                Return to Login
+              </Button>
+            </div>
           )}
         </CardContent>
         <CardFooter className="flex justify-center">
@@ -121,3 +199,4 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
+
