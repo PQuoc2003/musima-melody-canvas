@@ -2,6 +2,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -10,11 +11,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 interface OTPResetStepProps {
   form: UseFormReturn<{
-    otp?: string;  // Changed from required to optional to match actual form
+    otp?: string;
   }>;
   onSubmit: (values: { otp: string }) => Promise<void>;
   userEmail: string;
@@ -28,26 +28,15 @@ export const OTPResetStep = ({ form, onSubmit, userEmail }: OTPResetStepProps) =
           control={form.control}
           name="otp"
           render={({ field }) => (
-            <FormItem className="flex flex-col items-center">
-              <FormLabel className="text-center mb-2">Verification Code</FormLabel>
+            <FormItem>
+              <FormLabel className="text-center block">Verification Code</FormLabel>
               <FormControl>
-                <InputOTP
+                <Input
+                  {...field}
+                  type="text"
                   maxLength={6}
-                  value={field.value || ''}  // Added fallback for undefined value
-                  onChange={field.onChange}
-                  onComplete={field.onChange}
-                  render={({ slots }) => (
-                    <InputOTPGroup className="gap-2">
-                      {slots.map((slot, index) => (
-                        <InputOTPSlot 
-                          key={index} 
-                          {...slot} 
-                          index={index}
-                          className="border-primary/20 shadow-sm"
-                        />
-                      ))}
-                    </InputOTPGroup>
-                  )}
+                  placeholder="Enter 6-digit code"
+                  className="text-center"
                 />
               </FormControl>
               <FormMessage />
