@@ -1,25 +1,18 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { Mail, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from '@/hooks/use-theme';
 import { useToast } from '@/hooks/use-toast';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from '@/hooks/use-auth';
+import { EmailResetStep } from '@/components/auth/EmailResetStep';
+import { OTPResetStep } from '@/components/auth/OTPResetStep';
+import { SuccessResetStep } from '@/components/auth/SuccessResetStep';
 
 const emailSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -107,85 +100,24 @@ const ForgotPasswordPage = () => {
         </CardHeader>
         <CardContent>
           {step === 'email' && (
-            <Form {...emailForm}>
-              <form onSubmit={emailForm.handleSubmit(onSubmitEmail)} className="space-y-4">
-                <FormField
-                  control={emailForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                          <Input 
-                            placeholder="name@example.com" 
-                            className="pl-10" 
-                            {...field}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">Send Verification Code</Button>
-              </form>
-            </Form>
+            <EmailResetStep 
+              form={emailForm} 
+              onSubmit={onSubmitEmail} 
+            />
           )}
           
           {step === 'otp' && (
-            <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(onSubmitOTP)} className="space-y-4">
-                <FormField
-                  control={otpForm.control}
-                  name="otp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Verification Code</FormLabel>
-                      <FormControl>
-                        <InputOTP
-                          maxLength={6}
-                          render={({ slots }) => (
-                            <InputOTPGroup className="gap-2">
-                              {slots.map((slot, index) => (
-                                <InputOTPSlot 
-                                  key={index} 
-                                  {...slot} 
-                                  index={index}
-                                />
-                              ))}
-                            </InputOTPGroup>
-                          )}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="text-sm text-center text-muted-foreground">
-                  Verification code sent to {userEmail}
-                </div>
-                <Button type="submit" className="w-full">Verify Code</Button>
-              </form>
-            </Form>
+            <OTPResetStep 
+              form={otpForm} 
+              onSubmit={onSubmitOTP}
+              userEmail={userEmail}
+            />
           )}
 
           {step === 'success' && (
-            <div className="text-center space-y-4">
-              <p className="text-sm text-muted-foreground">
-                A new password has been sent to your email address. 
-                Please use this password to log in, and then change it from your settings.
-              </p>
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                onClick={() => navigate('/login')}
-              >
-                Return to Login
-              </Button>
-            </div>
+            <SuccessResetStep 
+              onNavigateToLogin={() => navigate('/login')} 
+            />
           )}
         </CardContent>
         <CardFooter className="flex justify-center">
