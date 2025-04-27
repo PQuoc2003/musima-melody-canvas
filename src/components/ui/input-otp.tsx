@@ -4,6 +4,7 @@ import { OTPInput, OTPInputContext } from "input-otp"
 import { Dot } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/hooks/use-theme"
 
 const InputOTP = React.forwardRef<
   React.ElementRef<typeof OTPInput>,
@@ -34,6 +35,8 @@ const InputOTPSlot = React.forwardRef<
   React.ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext)
+  const { theme } = useTheme()
+  
   // Add safety checks to ensure inputOTPContext and slots exist
   const slots = inputOTPContext?.slots || []
   const slot = slots[index] || { char: '', hasFakeCaret: false, isActive: false }
@@ -49,7 +52,12 @@ const InputOTPSlot = React.forwardRef<
       )}
       {...props}
     >
-      <span className="text-foreground text-base font-medium">{char}</span>
+      <span className={cn(
+        "text-base font-medium",
+        theme === 'dark' ? "text-white" : "text-black"
+      )}>
+        {char}
+      </span>
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
