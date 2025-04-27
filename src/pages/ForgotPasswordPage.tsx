@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -57,7 +56,6 @@ const ForgotPasswordPage = () => {
 
   const onSubmitEmail = async (values: EmailFormValues) => {
     try {
-      // Here you would call your existing API to send OTP
       await resetPassword(values.email);
       console.log('Requesting OTP for:', values.email);
       
@@ -79,7 +77,6 @@ const ForgotPasswordPage = () => {
 
   const onSubmitOTP = async (values: OTPFormValues) => {
     try {
-      // Here you would call your existing API to verify OTP and trigger password reset
       console.log('Verifying OTP:', values.otp);
       
       toast({
@@ -152,7 +149,11 @@ const ForgotPasswordPage = () => {
                           render={({ slots }) => (
                             <InputOTPGroup className="gap-2">
                               {slots.map((slot, index) => (
-                                <InputOTPSlot key={index} {...slot} index={index} />
+                                <InputOTPSlot 
+                                  key={index} 
+                                  {...slot} 
+                                  index={index}
+                                />
                               ))}
                             </InputOTPGroup>
                           )}
