@@ -29,7 +29,7 @@ export const OTPResetStep = ({ form, onSubmit, userEmail }: OTPResetStepProps) =
           name="otp"
           render={({ field }) => (
             <FormItem className="flex flex-col items-center">
-              <FormLabel>Verification Code</FormLabel>
+              <FormLabel className="text-center mb-2">Verification Code</FormLabel>
               <FormControl>
                 <InputOTP
                   maxLength={6}
@@ -43,6 +43,7 @@ export const OTPResetStep = ({ form, onSubmit, userEmail }: OTPResetStepProps) =
                           key={index} 
                           {...slot} 
                           index={index}
+                          className="border-primary/20 shadow-sm"
                         />
                       ))}
                     </InputOTPGroup>
