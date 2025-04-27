@@ -14,7 +14,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 
 interface OTPResetStepProps {
   form: UseFormReturn<{
-    otp: string;
+    otp?: string;  // Changed from required to optional to match actual form
   }>;
   onSubmit: (values: { otp: string }) => Promise<void>;
   userEmail: string;
@@ -33,7 +33,7 @@ export const OTPResetStep = ({ form, onSubmit, userEmail }: OTPResetStepProps) =
               <FormControl>
                 <InputOTP
                   maxLength={6}
-                  value={field.value}
+                  value={field.value || ''}  // Added fallback for undefined value
                   onChange={field.onChange}
                   onComplete={field.onChange}
                   render={({ slots }) => (

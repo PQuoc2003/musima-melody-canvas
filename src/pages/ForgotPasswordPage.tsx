@@ -33,14 +33,16 @@ const ForgotPasswordPage = () => {
   const { toast } = useToast();
   const { resetPassword } = useAuth();
 
-  const emailForm = useForm<EmailFormValues>({
+  // Update form type to match component prop types
+  const emailForm = useForm<{ email?: string }>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
       email: '',
     },
   });
 
-  const otpForm = useForm<OTPFormValues>({
+  // Update form type to match component prop types
+  const otpForm = useForm<{ otp?: string }>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
       otp: '',

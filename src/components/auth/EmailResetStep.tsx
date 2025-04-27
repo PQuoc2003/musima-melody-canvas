@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 
 interface EmailResetStepProps {
   form: UseFormReturn<{
-    email: string;
+    email?: string;  // Changed from required to optional to match actual form
   }>;
   onSubmit: (values: { email: string }) => Promise<void>;
 }
