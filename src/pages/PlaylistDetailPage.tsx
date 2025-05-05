@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { 
   Clock, Heart, MoreHorizontal, Play, Pause, MoreVertical, 
-  PlusCircle, Trash2, Volume2, VolumeX
+  PlusCircle, Trash2, Volume2, VolumeX, Edit, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -12,6 +11,10 @@ import { cn } from '@/lib/utils';
 import { Slider } from '@/components/ui/slider';
 import { useTheme } from '@/hooks/use-theme';
 import { useToast } from '@/hooks/use-toast';
+import { EditPlaylistDialog } from '@/components/playlist/EditPlaylistDialog';
+import { EditSongDialog } from '@/components/playlist/EditSongDialog';
+import { AddSongDialog } from '@/components/playlist/AddSongDialog';
+import { AddToPlaylistDialog } from '@/components/playlist/AddToPlaylistDialog';
 
 // Format time helper
 const formatTime = (seconds: number) => {
@@ -80,6 +83,14 @@ const PlaylistDetailPage = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [songProgress, setSongProgress] = useState(0);
   
+  // New state variables for our new features
+  const [playlistData, setPlaylistData] = useState(playlists.find(p => p.id === id) || playlists[0]);
+  const [showEditPlaylistDialog, setShowEditPlaylistDialog] = useState(false);
+  const [showAddSongsDialog, setShowAddSongsDialog] = useState(false);
+  const [showEditSongDialog, setShowEditSongDialog] = useState(false);
+  const [showAddToPlaylistDialog, setShowAddToPlaylistDialog] = useState(false);
+  const [currentEditSong, setCurrentEditSong] = useState<typeof playlistData.songs[0] | null>(null);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -92,7 +103,10 @@ const PlaylistDetailPage = () => {
   const isDark = theme === 'dark';
   
   // Find the playlist with the given ID
-  const playlist = playlists.find(p => p.id === id) || playlists[0]; // Fallback to first playlist if not found
+  useEffect(() => {
+    const playlistFound = playlists.find(p => p.id === id) || playlists[0];
+    setPlaylistData(playlistFound);
+  }, [id]);
   
   useEffect(() => {
     return () => {
@@ -187,7 +201,7 @@ const PlaylistDetailPage = () => {
         audioRef.current.pause();
       } else {
         // If no song is selected, play the first one
-        if (currentSongIndex === -1 && playlist.songs.length > 0) {
+        if (currentSongIndex === -1 && playlistData.songs.length > 0) {
           setCurrentSongIndex(0);
           // We'll start the playback in useEffect when the src is set
         } else {
@@ -245,7 +259,7 @@ const PlaylistDetailPage = () => {
 
   // Handle the end of a song (auto-play next)
   const handleSongEnd = () => {
-    if (currentSongIndex < playlist.songs.length - 1) {
+    if (currentSongIndex < playlistData.songs.length - 1) {
       // Play next song
       setCurrentSongIndex(currentSongIndex + 1);
       // Playback will be handled in useEffect
@@ -264,8 +278,119 @@ const PlaylistDetailPage = () => {
     }
   };
   
+  // New handlers for our features
+  const handleEditPlaylist = (updatedPlaylist: {
+    id: string;
+    name: string;
+    description: string;
+    coverUrl: string;
+  }) => {
+    setPlaylistData({
+      ...playlistData,
+      name: updatedPlaylist.name,
+      description: updatedPlaylist.description,
+      coverUrl: updatedPlaylist.coverUrl
+    });
+    setShowEditPlaylistDialog(false);
+  };
+  
+  const handleAddSongs = (newSongs: Array<{
+    id: number;
+    title: string;
+    artist: string;
+    album: string;
+    duration: number;
+  }>) => {
+    // Convert the incoming songs to match our song format
+    const songsToAdd = newSongs.map(song => ({
+      id: song.id,
+      title: song.title,
+      artist: song.artist,
+      album: song.album,
+      duration: song.duration,
+      liked: false,
+      songUrl: "https://docs.google.com/uc?export=open&id=1V-c_WmanMA9i6vi4lI-tOWXtf2AH_L1r" // Sample URL
+    }));
+    
+    // Add the songs to the playlist
+    setPlaylistData({
+      ...playlistData,
+      songs: [...playlistData.songs, ...songsToAdd]
+    });
+    
+    setShowAddSongsDialog(false);
+  };
+  
+  const handleEditSong = (updatedSong: {
+    id: number;
+    title: string;
+    artist: string;
+    album: string;
+  }) => {
+    // Update the song in the playlist
+    const updatedSongs = playlistData.songs.map(song => 
+      song.id === updatedSong.id 
+        ? { ...song, title: updatedSong.title, artist: updatedSong.artist, album: updatedSong.album } 
+        : song
+    );
+    
+    setPlaylistData({
+      ...playlistData,
+      songs: updatedSongs
+    });
+    
+    setShowEditSongDialog(false);
+    setCurrentEditSong(null);
+  };
+
+  const handleRemoveSong = (songId: number) => {
+    // Remove the song from the playlist
+    setPlaylistData({
+      ...playlistData,
+      songs: playlistData.songs.filter(song => song.id !== songId)
+    });
+    
+    toast({
+      title: "Song Removed",
+      description: "The song has been removed from this playlist"
+    });
+  };
+  
+  const handleAddToPlaylist = (playlistId: string) => {
+    // In a real app, this would make an API call to add the song to another playlist
+    toast({
+      title: "Song Added",
+      description: `The song has been added to another playlist (ID: ${playlistId})`
+    });
+    
+    setShowAddToPlaylistDialog(false);
+    setCurrentEditSong(null);
+  };
+
+  const handleToggleLike = (songId: number) => {
+    // Toggle the liked status of the song
+    const updatedSongs = playlistData.songs.map(song => 
+      song.id === songId 
+        ? { ...song, liked: !song.liked } 
+        : song
+    );
+    
+    setPlaylistData({
+      ...playlistData,
+      songs: updatedSongs
+    });
+    
+    const song = playlistData.songs.find(s => s.id === songId);
+    if (song) {
+      toast({
+        title: song.liked ? "Removed from Liked Songs" : "Added to Liked Songs",
+        description: `${song.title} by ${song.artist}`
+      });
+    }
+  };
+  
   // Calculate total playlist duration
-  const totalDuration = playlist.songs.reduce((acc, song) => acc + song.duration, 0);
+  const totalDuration = playlistData.songs.reduce((acc, song) => acc + song.duration, 0);
   const formattedTotalDuration = () => {
     const hours = Math.floor(totalDuration / 3600);
     const mins = Math.floor((totalDuration % 3600) / 60);
@@ -280,7 +405,7 @@ const PlaylistDetailPage = () => {
       {/* Hidden audio element for playback */}
       <audio 
         ref={audioRef}
-        src={currentSongIndex >= 0 ? playlist.songs[currentSongIndex].songUrl : ""}
+        src={currentSongIndex >= 0 ? playlistData.songs[currentSongIndex].songUrl : ""}
         onEnded={handleSongEnd}
         onTimeUpdate={() => audioRef.current && setSongProgress(audioRef.current.currentTime)}
         onLoadedMetadata={() => initializeAudio()}
@@ -292,22 +417,22 @@ const PlaylistDetailPage = () => {
       <div className="flex items-start mb-8">
         <div className="relative mr-6">
           <img 
-            src={playlist.coverUrl} 
-            alt={playlist.name} 
+            src={playlistData.coverUrl} 
+            alt={playlistData.name} 
             className="w-48 h-48 object-cover rounded-md shadow-lg" 
           />
         </div>
         
         <div className="flex-1">
           <div className={cn("mb-2 text-sm font-medium", isDark ? "text-gray-300" : "text-gray-600")}>PLAYLIST</div>
-          <h1 className={cn("text-4xl font-bold mb-2", isDark ? "text-white" : "text-gray-800")}>{playlist.name}</h1>
-          <p className={cn("text-sm mb-3", isDark ? "text-gray-300" : "text-gray-600")}>{playlist.description}</p>
+          <h1 className={cn("text-4xl font-bold mb-2", isDark ? "text-white" : "text-gray-800")}>{playlistData.name}</h1>
+          <p className={cn("text-sm mb-3", isDark ? "text-gray-300" : "text-gray-600")}>{playlistData.description}</p>
           <div className={cn("flex items-center text-sm mb-6", isDark ? "text-gray-400" : "text-gray-500")}>
-            <span>{playlist.songs.length} songs</span>
+            <span>{playlistData.songs.length} songs</span>
             <span className="mx-1">•</span>
             <span>{formattedTotalDuration()}</span>
             <span className="mx-1">•</span>
-            <span>Created {new Date(playlist.createdAt).toLocaleDateString()}</span>
+            <span>Created {new Date(playlistData.createdAt).toLocaleDateString()}</span>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -340,7 +465,10 @@ const PlaylistDetailPage = () => {
                 <DropdownMenuItem onClick={() => setShowAudioEffectsDialog(true)}>
                   Audio Effects
                 </DropdownMenuItem>
-                <DropdownMenuItem>Edit Details</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowEditPlaylistDialog(true)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Details
+                </DropdownMenuItem>
                 <DropdownMenuItem>Share Playlist</DropdownMenuItem>
                 <DropdownMenuItem className="text-red-500">Delete Playlist</DropdownMenuItem>
               </DropdownMenuContent>
@@ -409,6 +537,44 @@ const PlaylistDetailPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Playlist Dialog */}
+      <Dialog open={showEditPlaylistDialog} onOpenChange={setShowEditPlaylistDialog}>
+        <EditPlaylistDialog 
+          playlist={playlistData}
+          onClose={() => setShowEditPlaylistDialog(false)}
+          onSave={handleEditPlaylist}
+        />
+      </Dialog>
+
+      {/* Edit Song Dialog */}
+      <Dialog open={showEditSongDialog && currentEditSong !== null} onOpenChange={setShowEditSongDialog}>
+        {currentEditSong && (
+          <EditSongDialog 
+            song={currentEditSong}
+            onClose={() => {
+              setShowEditSongDialog(false);
+              setCurrentEditSong(null);
+            }}
+            onSave={handleEditSong}
+          />
+        )}
+      </Dialog>
+
+      {/* Add Song to Another Playlist Dialog */}
+      <Dialog open={showAddToPlaylistDialog && currentEditSong !== null} onOpenChange={setShowAddToPlaylistDialog}>
+        {currentEditSong && (
+          <AddToPlaylistDialog 
+            song={currentEditSong}
+            currentPlaylistId={playlistData.id}
+            onClose={() => {
+              setShowAddToPlaylistDialog(false);
+              setCurrentEditSong(null);
+            }}
+            onAddToPlaylist={handleAddToPlaylist}
+          />
+        )}
+      </Dialog>
       
       {/* Now Playing Section (if a song is currently playing) */}
       {currentSongIndex >= 0 && (
@@ -418,16 +584,16 @@ const PlaylistDetailPage = () => {
         )}>
           <div className="flex items-center flex-1">
             <img 
-              src={playlist.coverUrl} 
-              alt={playlist.songs[currentSongIndex].title} 
+              src={playlistData.coverUrl} 
+              alt={playlistData.songs[currentSongIndex].title} 
               className="w-12 h-12 object-cover rounded mr-4"
             />
             <div>
               <p className={cn("font-medium", isDark ? "text-white" : "text-gray-800")}>
-                Now Playing: {playlist.songs[currentSongIndex].title}
+                Now Playing: {playlistData.songs[currentSongIndex].title}
               </p>
               <p className={cn("text-sm", isDark ? "text-gray-300" : "text-gray-600")}>
-                {playlist.songs[currentSongIndex].artist}
+                {playlistData.songs[currentSongIndex].artist}
               </p>
             </div>
           </div>
@@ -439,13 +605,13 @@ const PlaylistDetailPage = () => {
               </span>
               <Slider
                 value={[songProgress]}
-                max={playlist.songs[currentSongIndex].duration}
+                max={playlistData.songs[currentSongIndex].duration}
                 step={1}
                 onValueChange={handleProgressChange}
                 className="w-40"
               />
               <span className={cn("text-xs ml-2", isDark ? "text-gray-400" : "text-gray-500")}>
-                {formatTime(playlist.songs[currentSongIndex].duration)}
+                {formatTime(playlistData.songs[currentSongIndex].duration)}
               </span>
             </div>
             
@@ -480,27 +646,17 @@ const PlaylistDetailPage = () => {
       )}>
         <div className="flex justify-between items-center py-3 px-4 border-b border-white/10">
           <h2 className={cn("font-bold", isDark ? "text-white" : "text-gray-800")}>Songs</h2>
-          <Dialog>
+          <Dialog open={showAddSongsDialog} onOpenChange={setShowAddSongsDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" className="gap-2">
                 <PlusCircle className="h-4 w-4" />
                 Add Songs
               </Button>
             </DialogTrigger>
-            <DialogContent className={cn(
-              "sm:max-w-[425px]", 
-              isDark ? "bg-musima-surface text-white" : "bg-white text-gray-800"
-            )}>
-              <DialogHeader>
-                <DialogTitle>Add Songs to Playlist</DialogTitle>
-              </DialogHeader>
-              <div className="py-4">
-                {/* Song selection UI would go here */}
-                <p className={cn(isDark ? "text-gray-300" : "text-gray-600")}>
-                  Select songs from your library to add to this playlist.
-                </p>
-              </div>
-            </DialogContent>
+            <AddSongDialog 
+              onClose={() => setShowAddSongsDialog(false)}
+              onAddSongs={handleAddSongs}
+            />
           </Dialog>
         </div>
         
@@ -519,7 +675,7 @@ const PlaylistDetailPage = () => {
           "divide-y", 
           isDark ? "divide-white/5" : "divide-gray-100"
         )}>
-          {playlist.songs.map((song, index) => (
+          {playlistData.songs.map((song, index) => (
             <div 
               key={song.id}
               className={cn(
@@ -579,13 +735,7 @@ const PlaylistDetailPage = () => {
                     "h-7 w-7 opacity-0 group-hover:opacity-100",
                     isDark ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-800"
                   )}
-                  onClick={() => {
-                    // Toggle like
-                    toast({
-                      title: song.liked ? "Removed from Liked Songs" : "Added to Liked Songs",
-                      description: `${song.title} by ${song.artist}`
-                    });
-                  }}
+                  onClick={() => handleToggleLike(song.id)}
                 >
                   <Heart className={cn(
                     "h-4 w-4", 
@@ -612,9 +762,21 @@ const PlaylistDetailPage = () => {
                     "border",
                     isDark ? "bg-musima-surface text-white border-white/10" : "bg-white text-gray-800 border-gray-200"
                   )}>
-                    <DropdownMenuItem>Add to Another Playlist</DropdownMenuItem>
-                    <DropdownMenuItem>Add to Wishlist</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-500">
+                    <DropdownMenuItem onClick={() => {
+                      setCurrentEditSong(song);
+                      setShowAddToPlaylistDialog(true);
+                    }}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add to Another Playlist
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => {
+                      setCurrentEditSong(song);
+                      setShowEditSongDialog(true);
+                    }}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Song Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-500" onClick={() => handleRemoveSong(song.id)}>
                       <Trash2 className="h-4 w-4 mr-2" />
                       Remove from Playlist
                     </DropdownMenuItem>
