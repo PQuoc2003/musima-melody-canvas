@@ -177,10 +177,20 @@ const PlaylistDetailPage = () => {
         ref={audioRef}
         src={currentSongIndex >= 0 ? playlistData.songs[currentSongIndex].songUrl : ""}
         onEnded={handleSongEnd}
-        onTimeUpdate={() => audioRef.current && setSongProgress(audioRef.current.currentTime)}
+        onTimeUpdate={() => {
+          if (audioRef.current) {
+            // Fix: Use the current time from the audio element
+            const currentTime = audioRef.current.currentTime;
+            handleProgressChange(currentTime);
+          }
+        }}
         onLoadedMetadata={() => initializeAudio()}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
+        onPlay={() => {
+          // Fix: No need to call setIsPlaying as it's managed by the audio hook
+        }}
+        onPause={() => {
+          // Fix: No need to call setIsPlaying as it's managed by the audio hook
+        }}
       />
       
       {/* Playlist header */}

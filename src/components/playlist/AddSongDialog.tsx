@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/use-theme';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search } from 'lucide-react';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 // Sample library songs data - in a real app this would come from an API
 const librarySongs = [
@@ -18,6 +19,18 @@ const librarySongs = [
   { id: 106, title: "Urban Jungle", artist: "City Beats", album: "Concrete Rhythms", duration: 203 },
   { id: 107, title: "Summer Nostalgia", artist: "Chill Wave", album: "Memories", duration: 192 },
   { id: 108, title: "Mountain High", artist: "Nature Sounds", album: "Peaceful Mind", duration: 285 },
+  { id: 109, title: "Desert Mirage", artist: "Ambient Dreams", album: "Nature's Call", duration: 262 },
+  { id: 110, title: "Electric Avenue", artist: "City Lights", album: "Urban Groove", duration: 194 },
+  { id: 111, title: "Rainy Days", artist: "Acoustic Sessions", album: "Home Comfort", duration: 223 },
+  { id: 112, title: "Sunset Boulevard", artist: "West Coast", album: "Pacific Dreams", duration: 241 },
+  { id: 113, title: "Mystic River", artist: "Deep Forest", album: "Hidden Paths", duration: 277 },
+  { id: 114, title: "Northern Lights", artist: "Arctic Sounds", album: "Aurora", duration: 265 },
+  { id: 115, title: "Digital Love", artist: "Electronic Masters", album: "Future Beats", duration: 218 },
+  { id: 116, title: "Floating Dreams", artist: "Mind Journey", album: "Beyond Reality", duration: 293 },
+  { id: 117, title: "Urban Rhapsody", artist: "City Collective", album: "Metropolitan", duration: 252 },
+  { id: 118, title: "Twilight Zone", artist: "Night Owls", album: "After Dark", duration: 231 },
+  { id: 119, title: "Crystal Clear", artist: "Pure Sound", album: "Transparency", duration: 209 },
+  { id: 120, title: "Golden Hour", artist: "Sunset Chasers", album: "Perfect Moments", duration: 227 },
 ];
 
 interface AddSongDialogProps {
@@ -34,16 +47,25 @@ interface AddSongDialogProps {
 export const AddSongDialog = ({ onClose, onAddSongs }: AddSongDialogProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSongs, setSelectedSongs] = useState<Array<typeof librarySongs[0]>>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const { theme } = useTheme();
   const { toast } = useToast();
   
   const isDark = theme === 'dark';
+  const itemsPerPage = 6; // Number of songs per page
 
+  // Filter songs based on search term
   const filteredSongs = librarySongs.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.album.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredSongs.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentSongs = filteredSongs.slice(indexOfFirstItem, indexOfLastItem);
 
   const toggleSongSelection = (song: typeof librarySongs[0]) => {
     if (selectedSongs.some(s => s.id === song.id)) {
@@ -73,6 +95,10 @@ export const AddSongDialog = ({ onClose, onAddSongs }: AddSongDialogProps) => {
     onClose();
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   // Format time helper
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -94,7 +120,10 @@ export const AddSongDialog = ({ onClose, onAddSongs }: AddSongDialogProps) => {
           <Input 
             placeholder="Search songs by title, artist, or album" 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page on search
+            }}
             className={cn("pl-10", isDark ? "bg-white/5 text-white" : "bg-gray-100 text-gray-800")}
           />
         </div>
@@ -117,8 +146,8 @@ export const AddSongDialog = ({ onClose, onAddSongs }: AddSongDialogProps) => {
               </tr>
             </thead>
             <tbody className={cn("divide-y", isDark ? "divide-white/10" : "divide-gray-200")}>
-              {filteredSongs.length > 0 ? (
-                filteredSongs.map((song) => (
+              {currentSongs.length > 0 ? (
+                currentSongs.map((song) => (
                   <tr 
                     key={song.id}
                     className={cn(
@@ -160,6 +189,40 @@ export const AddSongDialog = ({ onClose, onAddSongs }: AddSongDialogProps) => {
             </tbody>
           </table>
         </div>
+        
+        {filteredSongs.length > itemsPerPage && (
+          <div className="mt-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                
+                {[...Array(totalPages)].map((_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      isActive={currentPage === index + 1}
+                      onClick={() => handlePageChange(index + 1)}
+                      className="cursor-pointer"
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
         
         <div className="mt-4 flex items-center justify-between">
           <span className={cn("text-sm", isDark ? "text-gray-300" : "text-gray-600")}>
