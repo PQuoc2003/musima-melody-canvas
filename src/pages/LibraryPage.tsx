@@ -1,14 +1,17 @@
+
 import React, { useState, useRef } from 'react';
-import { Search, Image, X, Music } from 'lucide-react';
+import { Search, Image, X, Music, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { useTheme } from '@/hooks/use-theme';
 import { useMusicPlayer, Song } from '@/contexts/MusicPlayerContext';
 import SongCard from '@/components/music/SongCard';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const libraryItems: Song[] = Array.from({ length: 20 }, (_, i) => ({
   id: i + 1,
@@ -44,12 +47,17 @@ const LibraryPage = () => {
   const [imagePreview, setImagePreview] = useState('');
   const [songCoverUrl, setSongCoverUrl] = useState('');
   const [songFile, setSongFile] = useState<File | null>(null);
+  const [songs, setSongs] = useState<Song[]>(libraryItems);
+  const [songToDelete, setSongToDelete] = useState<Song | null>(null);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const songFileInputRef = useRef<HTMLInputElement>(null);
   const { theme } = useTheme();
   const { playSong } = useMusicPlayer();
+  const { toast } = useToast();
 
-  const filteredSongs = libraryItems.filter(song => 
+  const filteredSongs = songs.filter(song => 
     song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (song.album && song.album.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -92,6 +100,28 @@ const LibraryPage = () => {
     if (songFileInputRef.current) {
       songFileInputRef.current.value = '';
     }
+  };
+
+  const handleConfirmDelete = () => {
+    if (songToDelete) {
+      // Filter out the song to delete
+      setSongs(prevSongs => prevSongs.filter(song => song.id !== songToDelete.id));
+      
+      // Show toast notification
+      toast({
+        title: "Song Deleted",
+        description: `"${songToDelete.title}" has been removed from your library.`
+      });
+      
+      // Reset state
+      setSongToDelete(null);
+      setShowDeleteConfirmDialog(false);
+    }
+  };
+
+  const handleDeleteClick = (song: Song) => {
+    setSongToDelete(song);
+    setShowDeleteConfirmDialog(true);
   };
 
   const isDark = theme === 'dark';
@@ -260,6 +290,7 @@ const LibraryPage = () => {
             key={song.id}
             song={song}
             onPlay={playSong}
+            onDelete={() => handleDeleteClick(song)}
           />
         ))}
       </div>
@@ -302,6 +333,36 @@ const LibraryPage = () => {
           </PaginationContent>
         </Pagination>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirmDialog} onOpenChange={setShowDeleteConfirmDialog}>
+        <AlertDialogContent className={`${isDark ? 'bg-musima-surface text-white' : 'bg-white text-gray-800'}`}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className={textColorClass}>
+              Confirm Delete
+            </AlertDialogTitle>
+            <AlertDialogDescription className={mutedTextClass}>
+              Are you sure you want to delete "{songToDelete?.title}"?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className={isDark ? "bg-white/10 text-white hover:bg-white/20" : ""}
+              onClick={() => setSongToDelete(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-600 hover:bg-red-700 text-white" 
+              onClick={handleConfirmDelete}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
