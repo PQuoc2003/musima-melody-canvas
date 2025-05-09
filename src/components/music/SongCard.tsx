@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,9 +11,10 @@ import { useTheme } from '@/hooks/use-theme';
 interface SongCardProps {
   song: Song;
   onPlay: (song: Song) => void;
+  onDelete?: (song: Song) => void; // Add the onDelete prop as optional
 }
 
-const SongCard: React.FC<SongCardProps> = ({ song, onPlay }) => {
+const SongCard: React.FC<SongCardProps> = ({ song, onPlay, onDelete }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const textColorClass = isDark ? 'text-white' : 'text-gray-800';
@@ -80,7 +82,12 @@ const SongCard: React.FC<SongCardProps> = ({ song, onPlay }) => {
               <DropdownMenuItem className="py-2 cursor-pointer">Add to Playlist</DropdownMenuItem>
               <DropdownMenuItem className="py-2 cursor-pointer">Add to Wishlist</DropdownMenuItem>
               <DropdownMenuItem className="py-2 cursor-pointer">Edit Details</DropdownMenuItem>
-              <DropdownMenuItem className="py-2 cursor-pointer text-red-500">Delete</DropdownMenuItem>
+              <DropdownMenuItem 
+                className="py-2 cursor-pointer text-red-500"
+                onClick={() => onDelete && onDelete(song)}
+              >
+                Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
